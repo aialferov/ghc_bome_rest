@@ -1,0 +1,12 @@
+{application, ghc_bome_rest, [
+    {description, "GHC Bome REST"},
+    {id, "ghc_bome_rest"},
+    {vsn, "0.1.0"},
+    {modules, []},
+    {applications, [kernel, stdlib, cowboy]},
+    {mod, {ghc_bome_rest_app, []}},
+    {env, [
+        {port, 8080},
+        {db_module, ghc_bome_rest_db}
+    ]}
+]}.
