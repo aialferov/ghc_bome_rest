@@ -1,15 +1,6 @@
--define(Usage, <<
-    "Usage:\n"
-    "\n"
-    "PUT /v1/<user>\n"
-    "{\"type\": \"value\"}\n"
-    "\n"
-    "GET /v1/<user>\n"
-    "GET /v1/<user>/<type>\n"
-    "\n"
-    "DELETE /v1/<user>\n"
-    "DELETE /v1/<user>/<type>\n"
->>).
+-record(state, {db_module}).
+
+-define(Usage, "").
 
 -define(ContentTypeText, #{<<"content-type">> => <<"text/plain">>}).
 -define(ContentTypeJson, #{<<"content-type">> => <<"application/json">>}).
@@ -19,3 +10,4 @@
 -define(CodeNoContent, 204).
 
 -define(CodeBadRequest, 400).
+-define(CodeNotFound, 404).

@@ -3,25 +3,44 @@
 
 -export([
     put/2,
-    get/2, get/1,
-    delete/2, delete/1
+    patch/2,
+    get/1, get/2,
+    delete/1, delete/2
 ]).
 
-put(User, {Type, Value}) ->
-    io:format("PUT ~p => ~p: ~p~n", [btl(User), btl(Type), btl(Value)]).
+put(Id = <<"user">>, Data) ->
+    io:format("PUT ~p => ~p~n", [Id, Data]),
+    {ok, modified};
 
-get(User, undefined) -> get(User);
-get(User, Type) ->
-    io:format("GET ~p => ~p~n", [btl(User), btl(Type)]),
-    {ok, <<"value">>}.
+put(Id, Data) ->
+    io:format("PUT ~p => ~p~n", [Id, Data]),
+    {ok, created}.
 
-get(User) ->
-    io:format("GET ~p~n", [btl(User)]),
-    {ok, #{<<"type">> => <<"value">>}}.
+patch(Id = <<"user">>, Data) ->
+    io:format("PATCH ~p => ~p~n", [Id, Data]);
 
-delete(User, undefined) -> delete(User);
-delete(User, Type) -> io:format("DELETE ~p => ~p~n", [btl(User), btl(Type)]).
-delete(User) -> io:format("DELETE ~p~n", [btl(User)]).
+patch(Id, Data) ->
+    io:format("PATCH ~p => ~p~n", [Id, Data]),
+    {error, not_found}.
 
-btl(B) when is_binary(B) -> binary_to_list(B);
-btl(T) -> T.
+get(Id) -> get(Id, []).
+
+get(Id = <<"user">>, Options = []) ->
+    io:format("GET ~p => ~p~n", [Id, Options]),
+    {ok, #{
+        <<"type1">> => <<"value1">>,
+        <<"typeN">> => <<"valueN">>
+    }};
+
+get(Id, Options) ->
+    io:format("GET ~p => ~p~n", [Id, Options]),
+    {error, not_found}.
+
+delete(Id) -> delete(Id, []).
+
+delete(Id = <<"user">>, Types) ->
+    io:format("DELETE ~p => ~p~n", [Id, Types]);
+
+delete(Id, Types) ->
+    io:format("DELETE ~p => ~p~n", [Id, Types]),
+    {error, not_found}.
