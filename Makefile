@@ -9,6 +9,9 @@ all:
 check:
 	$(REBAR) eunit
 
+at:
+	$(REBAR) ct
+
 clean:
 	$(REBAR) clean -a
 	$(REBAR) unlock
