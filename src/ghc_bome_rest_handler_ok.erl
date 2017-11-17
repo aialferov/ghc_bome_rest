@@ -19,9 +19,9 @@ init(Req0 = #{method := Method, has_body := false}, State) when
     Method == <<"GET">>
 ->
     Id = cowboy_req:binding(id, Req0),
-    EncodedOptions = cowboy_req:parse_qs(Req0),
+    Query = cowboy_req:parse_qs(Req0),
 
-    Req = case decode_options(EncodedOptions) of
+    Req = case decode_query(Query) of
         {ok, Options} -> action(Method, Id, Options, Req0, State#state.db_module);
         {error, Reason} -> reply_bad_request(Reason, Req0)
     end,
@@ -53,24 +53,6 @@ action(<<"DELETE">>, Id, Data, Req, DbModule) ->
         {error, not_found} -> reply_not_found(Id, Req)
     end.
 
-decode_body(Body) ->
-    try jsx:decode(Body) of
-        DecodedBody -> {ok, DecodedBody}
-    catch
-        _:_ -> {error, malformed_json}
-    end.
-
-decode_options(Options) ->
-    lists:foldl(fun decode_option/2, {ok, []}, Options).
-
-decode_option({Name = <<"filter">>, Arg}, {ok, Options}) ->
-    {ok, [{Name, binary:split(Arg, <<",">>, [global])}|Options]};
-
-decode_option({Name, _Arg}, {ok, _Options}) ->
-    {error, #{unknown_option => Name}};
-
-decode_option({_Name, _Arg}, {error, Reason}) -> {error, Reason}.
-
 reply_created(Req) -> cowboy_req:reply(?CodeCreated, Req).
 reply_modified(Req) -> cowboy_req:reply(?CodeNoContent, Req).
 
@@ -91,3 +73,22 @@ reply_bad_request(Reason, Req) ->
         ?CodeBadRequest, ?ContentTypeJson,
         jsx:encode(#{reason => Reason}), Req
     ).
+
+decode_body(Body) ->
+    try jsx:decode(Body, [return_maps]) of
+        DecodedBody -> {ok, DecodedBody}
+    catch
+        _:_ -> {error, malformed_json}
+    end.
+
+decode_query(Query) ->
+    lists:foldl(fun decode_query/2, {ok, []}, Query).
+
+decode_query({Name = <<"filter">>, Arg}, {ok, Query}) ->
+    {ok, [{binary_to_atom(Name, utf8),
+           binary:split(Arg, <<",">>, [global])}|Query]};
+
+decode_query({Name, _Arg}, {ok, _Query}) ->
+    {error, #{unknown_option => Name}};
+
+decode_query({_Name, _Arg}, {error, Reason}) -> {error, Reason}.

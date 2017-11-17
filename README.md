@@ -58,9 +58,9 @@ GET /v1/users/:id[?filter=type1,...,typeN]
 # Response (if user not found)
 404 Not Found
 
-# Response (if query is malformed)
+# Response (if query contains unknown option)
 400 Bad Request
-{"reason" : "malformed_query"}
+{"reason" : {"unknown_option" : "<Option>"}}
 ```
 
 ### Update

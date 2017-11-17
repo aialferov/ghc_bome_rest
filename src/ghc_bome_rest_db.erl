@@ -53,4 +53,4 @@ delete(Id, Types) ->
     io:format("DELETE ~p => ~p~n", [Id, Types]),
     {error, not_found}.
 
-apply_option({<<"filter">>, Types}, Data) -> maps:with(Types, Data).
+apply_option({filter, Types}, Data) -> maps:with(Types, Data).
