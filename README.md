@@ -94,11 +94,11 @@ Delete the specified user data:
 ```
 # Request
 DELETE /v1/users/:id
-{
+[
     "<type1>",
     ...,
     "<typeN>"
-}
+]
 
 # Response (if user exists)
 204 No Content

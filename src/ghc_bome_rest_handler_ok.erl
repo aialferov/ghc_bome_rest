@@ -1,7 +1,9 @@
 -module(ghc_bome_rest_handler_ok).
 -export([init/2]).
 
--include("ghc_bome_rest.hrl").
+-include("ghc_bome_rest_handler.hrl").
+
+-define(HandlerBadRequest, ghc_bome_rest_handler_bad_request).
 
 init(Req0 = #{method := Method, has_body := true}, State) when
     Method == <<"PUT">>; Method == <<"PATCH">>; Method == <<"DELETE">>
@@ -11,7 +13,7 @@ init(Req0 = #{method := Method, has_body := true}, State) when
 
     Req = case decode_body(Body) of
         {ok, Data} -> action(Method, Id, Data, Req1, State#state.db_module);
-        {error, Reason} -> reply_bad_request(Reason, Req1)
+        {error, Reason} -> ?HandlerBadRequest:reply(Reason, Req1)
     end,
     {ok, Req, State};
 
@@ -23,11 +25,11 @@ init(Req0 = #{method := Method, has_body := false}, State) when
 
     Req = case decode_query(Query) of
         {ok, Options} -> action(Method, Id, Options, Req0, State#state.db_module);
-        {error, Reason} -> reply_bad_request(Reason, Req0)
+        {error, Reason} -> ?HandlerBadRequest:reply(Reason, Req0)
     end,
     {ok, Req, State};
 
-init(Req, State) -> {ok, reply_bad_request(Req), State}.
+init(Req, State) -> {ok, ?HandlerBadRequest:reply(Req), State}.
 
 action(<<"PUT">>, Id, Data, Req, DbModule) ->
     case DbModule:put(Id, Data) of
@@ -63,15 +65,6 @@ reply_not_found(Resource, Req) ->
     cowboy_req:reply(
         ?CodeNotFound, ?ContentTypeJson,
         jsx:encode(#{Resource => not_found}), Req
-    ).
-
-reply_bad_request(Req) ->
-    cowboy_req:reply(?CodeBadRequest, ?ContentTypeText, ?Usage, Req).
-
-reply_bad_request(Reason, Req) ->
-    cowboy_req:reply(
-        ?CodeBadRequest, ?ContentTypeJson,
-        jsx:encode(#{reason => Reason}), Req
     ).
 
 decode_body(Body) ->

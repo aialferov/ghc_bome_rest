@@ -6,7 +6,7 @@
     stop/1, prep_stop/1
 ]).
 
--include("ghc_bome_rest.hrl").
+-include("ghc_bome_rest_handler.hrl").
 
 -define(Listener, ghc_bome_http).
 

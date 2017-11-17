@@ -99,7 +99,7 @@ delete(Config) ->
 bad(Config) ->
     Port = port(Config),
     lists:foreach(fun(Endpoint) ->
-        {400, <<"">>} = request(get, format(Endpoint, [Port]))
+        {400, _Usage} = request(get, format(Endpoint, [Port]))
     end, ?BadEndpoints).
 
 endpoint_fun(Config) ->
@@ -116,14 +116,20 @@ request(Method, Endpoint, Body) ->
 
 code_body(Response) -> case Response of
     {ok, {{_Version, Code, _Reason}, _Headers, <<"">>}} -> {Code, <<"">>};
-    {ok, {{_Version, Code, _Reason}, _Headers, Body}} ->
-        {Code, jsx:decode(Body, [return_maps])};
+    {ok, {{_Version, Code, _Reason}, Headers, Body}} ->
+        case is_content_type_json(Headers) of
+            true -> {Code, jsx:decode(Body, [return_maps])};
+            false -> {Code, Body}
+        end;
 
     {error, Reason} -> {error, Reason}
 end.
 
 qs([]) -> "";
 qs(Ql) -> [$?|tl(lists:flatten([[$&|K] ++ [$=|V] || {K, V} <- Ql]))].
+
+is_content_type_json(Headers) ->
+    proplists:get_value("content-type", Headers, "") == "application/json".
 
 port(Config) -> proplists:get_value(port, Config).
 
