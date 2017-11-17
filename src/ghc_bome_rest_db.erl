@@ -32,6 +32,21 @@ get(Id = <<"user">>, Options = []) ->
         <<"typeN">> => <<"valueN">>
     }};
 
+get(Id = <<"user">>, Options) ->
+    io:format("GET ~p => ~p~n", [Id, Options]),
+    Data = #{
+        <<"type1">> => <<"value1">>,
+        <<"typeN">> => <<"valueN">>
+    },
+
+    case lists:keyfind(<<"types">>, 1, Options) of
+        {<<"types">>, TypesBinary} ->
+            Types = binary:split(TypesBinary, <<",">>, [global]),
+            Member = fun(Type, _Value) -> lists:member(Type, Types) end,
+            {ok, maps:filter(Member, Data)};
+        false -> {error, bad_options}
+    end;
+
 get(Id, Options) ->
     io:format("GET ~p => ~p~n", [Id, Options]),
     {error, not_found}.
