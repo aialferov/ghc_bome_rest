@@ -40,7 +40,8 @@ action(<<"GET">>, Id, Options, Req, DbModule) ->
     case DbModule:get(Id, Options) of
         {ok, Data} -> reply_data(Data, Req);
         {error, not_found} -> reply_not_found(Id, Req);
-        {error, bad_options} -> reply_bad_request(#{bad_query => Options}, Req)
+        {error, bad_options} ->
+            reply_bad_request(#{malformed_query => Options}, Req)
     end;
 
 action(<<"DELETE">>, Id, Data, Req, DbModule) ->

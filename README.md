@@ -33,6 +33,10 @@ PUT /v1/users/:id
 
 # Response (if existing user data was overwritten):
 204 No Content
+
+# Response (if body is malformed)
+400 Bad Request
+{"reason" : "malformed_json"}
 ```
 
 ### Read
@@ -53,6 +57,10 @@ GET /v1/users/:id[?types=type1,...,typeN]
 
 # Response (if user not found)
 404 Not Found
+
+# Response (if query is malformed)
+400 Bad Request
+{"reason" : "malformed_query"}
 ```
 
 ### Update
@@ -73,6 +81,10 @@ PATCH /v1/users/:id
 
 # Response (if user not found)
 404 Not Found
+
+# Response (if body is malformed)
+400 Bad Request
+{"reason" : "malformed_json"}
 ```
 
 ### Delete
@@ -93,6 +105,10 @@ DELETE /v1/users/:id
 
 # Response (if user not found)
 404 Not Found
+
+# Response (if body is malformed)
+400 Bad Request
+{"reason" : "malformed_json"}
 ```
 
 ## Run
@@ -115,3 +131,17 @@ Default backend just prints out the requests API receives and does not actually
 store any data. The backend could also be configured by specifying the backend
 main module in "app" file or overriden by "sys.config" or
 "application:set_env/3,4".
+
+### Tests
+
+Run API acceptance tests:
+
+```
+$ make at
+```
+
+and see the results:
+
+```
+$ make at-show
+```

@@ -1,6 +1,7 @@
 REBAR = ./rebar3
 
 BUILDDIR = _build
+CTLOGINDEX = _build/test/logs/index.html 
 
 all:
 	$(REBAR) compile
@@ -11,6 +12,9 @@ check:
 
 at:
 	$(REBAR) ct
+
+at-show:
+	open $(CTLOGINDEX)
 
 clean:
 	$(REBAR) clean -a
