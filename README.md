@@ -45,7 +45,7 @@ Get data of the specified user:
 
 ```
 # Request
-GET /v1/users/:id[?types=type1,...,typeN]
+GET /v1/users/:id[?filter=type1,...,typeN]
 
 # Response (if user exists)
 200 OK

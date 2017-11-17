@@ -74,17 +74,17 @@ get(Config) ->
     Endpoint = endpoint_fun(Config),
 
     {200, #{<<"type1">> := <<"value1">>, <<"typeN">> := <<"valueN">>}} =
-        request(get, Endpoint("user", [{"types", "type1,typeN"}])),
+        request(get, Endpoint("user", [{"filter", "type1,typeN"}])),
 
     {200, #{<<"typeN">> := <<"valueN">>}} =
-        request(get, Endpoint("user", [{"types", "typeN"}])),
+        request(get, Endpoint("user", [{"filter", "typeN"}])),
 
     {404, #{<<"user1">> := <<"not_found">>}} =
-        request(get, Endpoint("user1", [{"types", "type1,typeN"}])),
+        request(get, Endpoint("user1", [{"filter", "type1,typeN"}])),
 
     {400, #{<<"reason">> :=
-          #{<<"malformed_query">> := #{<<"type">> := <<"type1,typeN">>}}}} =
-        request(get, Endpoint("user", [{"type", "type1,typeN"}])).
+          #{<<"malformed_query">> := #{<<"bad_filter">> := <<"type1,typeN">>}}}} =
+        request(get, Endpoint("user", [{"bad_filter", "type1,typeN"}])).
 
 delete(Config) ->
     Endpoint = endpoint_fun(Config),

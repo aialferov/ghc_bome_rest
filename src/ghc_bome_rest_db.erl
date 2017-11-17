@@ -39,8 +39,8 @@ get(Id = <<"user">>, Options) ->
         <<"typeN">> => <<"valueN">>
     },
 
-    case lists:keyfind(<<"types">>, 1, Options) of
-        {<<"types">>, TypesBinary} ->
+    case lists:keyfind(<<"filter">>, 1, Options) of
+        {<<"filter">>, TypesBinary} ->
             Types = binary:split(TypesBinary, <<",">>, [global]),
             Member = fun(Type, _Value) -> lists:member(Type, Types) end,
             {ok, maps:filter(Member, Data)};
