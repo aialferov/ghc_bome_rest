@@ -15,11 +15,16 @@ init(Req0 = #{method := Method, has_body := true}, State) when
     end,
     {ok, Req, State};
 
-init(Req0 = #{method := <<"GET">>, has_body := false}, State) ->
+init(Req0 = #{method := Method, has_body := false}, State) when
+    Method == <<"GET">>
+->
     Id = cowboy_req:binding(id, Req0),
-    Options = cowboy_req:parse_qs(Req0),
+    EncodedOptions = cowboy_req:parse_qs(Req0),
 
-    Req = action(<<"GET">>, Id, Options, Req0, State#state.db_module),
+    Req = case decode_options(EncodedOptions) of
+        {ok, Options} -> action(Method, Id, Options, Req0, State#state.db_module);
+        {error, Reason} -> reply_bad_request(Reason, Req0)
+    end,
     {ok, Req, State};
 
 init(Req, State) -> {ok, reply_bad_request(Req), State}.
@@ -39,9 +44,7 @@ action(<<"PATCH">>, Id, Data, Req, DbModule) ->
 action(<<"GET">>, Id, Options, Req, DbModule) ->
     case DbModule:get(Id, Options) of
         {ok, Data} -> reply_data(Data, Req);
-        {error, not_found} -> reply_not_found(Id, Req);
-        {error, bad_options} ->
-            reply_bad_request(#{malformed_query => Options}, Req)
+        {error, not_found} -> reply_not_found(Id, Req)
     end;
 
 action(<<"DELETE">>, Id, Data, Req, DbModule) ->
@@ -56,6 +59,17 @@ decode_body(Body) ->
     catch
         _:_ -> {error, malformed_json}
     end.
+
+decode_options(Options) ->
+    lists:foldl(fun decode_option/2, {ok, []}, Options).
+
+decode_option({Name = <<"filter">>, Arg}, {ok, Options}) ->
+    {ok, [{Name, binary:split(Arg, <<",">>, [global])}|Options]};
+
+decode_option({Name, _Arg}, {ok, _Options}) ->
+    {error, #{unknown_option => Name}};
+
+decode_option({_Name, _Arg}, {error, Reason}) -> {error, Reason}.
 
 reply_created(Req) -> cowboy_req:reply(?CodeCreated, Req).
 reply_modified(Req) -> cowboy_req:reply(?CodeNoContent, Req).

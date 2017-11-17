@@ -38,14 +38,7 @@ get(Id = <<"user">>, Options) ->
         <<"type1">> => <<"value1">>,
         <<"typeN">> => <<"valueN">>
     },
-
-    case lists:keyfind(<<"filter">>, 1, Options) of
-        {<<"filter">>, TypesBinary} ->
-            Types = binary:split(TypesBinary, <<",">>, [global]),
-            Member = fun(Type, _Value) -> lists:member(Type, Types) end,
-            {ok, maps:filter(Member, Data)};
-        false -> {error, bad_options}
-    end;
+    {ok, lists:foldl(fun apply_option/2, Data, Options)};
 
 get(Id, Options) ->
     io:format("GET ~p => ~p~n", [Id, Options]),
@@ -59,3 +52,5 @@ delete(Id = <<"user">>, Types) ->
 delete(Id, Types) ->
     io:format("DELETE ~p => ~p~n", [Id, Types]),
     {error, not_found}.
+
+apply_option({<<"filter">>, Types}, Data) -> maps:with(Types, Data).

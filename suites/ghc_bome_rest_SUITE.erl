@@ -82,8 +82,7 @@ get(Config) ->
     {404, #{<<"user1">> := <<"not_found">>}} =
         request(get, Endpoint("user1", [{"filter", "type1,typeN"}])),
 
-    {400, #{<<"reason">> :=
-          #{<<"malformed_query">> := #{<<"bad_filter">> := <<"type1,typeN">>}}}} =
+    {400, #{<<"reason">> := #{<<"unknown_option">> := <<"bad_filter">>}}} =
         request(get, Endpoint("user", [{"bad_filter", "type1,typeN"}])).
 
 delete(Config) ->

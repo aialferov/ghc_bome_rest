@@ -1,6 +1,6 @@
 # GHC Bome REST
 
-Provides HTTP server with REST API for
+Erlang application implementing HTTP server with REST API for
 [GHC Bome Service](http://github.com/aialferov/ghc-bome).
 
 ## API
