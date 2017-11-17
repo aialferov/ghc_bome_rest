@@ -52,7 +52,7 @@ decode_body(Body) ->
     try jsx:decode(Body) of
         DecodedBody -> {ok, DecodedBody}
     catch
-        _:_ -> {error, invalid_json}
+        _:_ -> {error, malformed_json}
     end.
 
 reply_created(Req) -> cowboy_req:reply(?CodeCreated, Req).
