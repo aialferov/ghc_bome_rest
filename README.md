@@ -140,8 +140,8 @@ Run API acceptance tests:
 $ make at
 ```
 
-and see the results:
+and see results in browser:
 
 ```
-$ make at-show
+$ make at-display
 ```
