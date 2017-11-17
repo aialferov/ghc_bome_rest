@@ -23,8 +23,8 @@ existing data.
 # Request:
 PUT /v1/users/:id
 {
-    "<type1>" : <value1>
-    ...
+    "<type1>" : <value1>,
+    ...,
     "<typeN>" : <valueN>
 }
 
@@ -50,8 +50,8 @@ GET /v1/users/:id[?filter=type1,...,typeN]
 # Response (if user exists)
 200 OK
 {
-    "<type1>" : <value1>
-    ...
+    "<type1>" : <value1>,
+    ...,
     "<typeN>" : <valueN>
 }
 
@@ -71,8 +71,8 @@ Update the specified user data:
 # Request
 PATCH /v1/users/:id
 {
-    "<type1>" : <value1>
-    ...
+    "<type1>" : <value1>,
+    ...,
     "<typeN>" : <valueN>
 }
 
@@ -95,9 +95,9 @@ Delete the specified user data:
 # Request
 DELETE /v1/users/:id
 {
-    "<type1>" : <value1>
-    ...
-    "<typeN>" : <valueN>
+    "<type1>",
+    ...,
+    "<typeN>"
 }
 
 # Response (if user exists)
