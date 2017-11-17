@@ -1,6 +1,10 @@
+PROJECT = ghc_bome_rest
+
 REBAR = ./rebar3
 
 BUILDDIR = _build
+TESTDIR = $(shell $(REBAR) path --app $(PROJECT) --ebin)
+
 CTLOGINDEX = _build/test/logs/index.html 
 
 all:
@@ -10,8 +14,8 @@ all:
 check:
 	$(REBAR) eunit
 
-at:
-	$(REBAR) ct
+at: all
+	$(REBAR) ct --dir $(TESTDIR)
 
 at-show:
 	open $(CTLOGINDEX)

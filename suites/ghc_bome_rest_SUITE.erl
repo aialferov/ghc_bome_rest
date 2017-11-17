@@ -83,7 +83,7 @@ get(Config) ->
         request(get, Endpoint("user1", [{"types", "type1,typeN"}])),
 
     {400, #{<<"reason">> :=
-          #{<<"bad_query">> := #{<<"type">> := <<"type1,typeN">>}}}} =
+          #{<<"malformed_query">> := #{<<"type">> := <<"type1,typeN">>}}}} =
         request(get, Endpoint("user", [{"type", "type1,typeN"}])).
 
 delete(Config) ->
