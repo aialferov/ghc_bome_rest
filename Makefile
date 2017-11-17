@@ -17,9 +17,6 @@ check:
 at: all
 	$(REBAR) ct --dir $(TESTDIR)
 
-at-show:
-	open $(CTLOGINDEX)
-
 clean:
 	$(REBAR) clean -a
 	$(REBAR) unlock
@@ -30,3 +27,13 @@ distclean: clean
 shell:
 	$(REBAR) shell
 	$(REBAR) unlock
+
+ifeq ($(shell uname), Linux)
+	OPENCMD = xgd-open
+endif
+ifeq ($(shell uname), Darwin)
+	OPENCMD = open
+endif
+
+at-browser:
+	$(OPENCMD) $(CTLOGINDEX)
