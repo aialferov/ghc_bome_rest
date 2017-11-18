@@ -89,12 +89,12 @@ delete(Config) ->
     Endpoint = endpoint_fun(Config),
     Body = jsx:encode([<<"type1">>, <<"typeN">>]),
 
-    {204, <<"">>} = request(patch, Endpoint("user", []), Body),
+    {204, <<"">>} = request(delete, Endpoint("user", []), Body),
     {404, #{<<"user1">> := <<"not_found">>}} =
-        request(patch, Endpoint("user1", []), Body),
+        request(delete, Endpoint("user1", []), Body),
 
     ReasonMalformedJson = #{<<"reason">> => <<"malformed_json">>},
-    {400, ReasonMalformedJson} = request(patch, Endpoint("user", []), <<"{">>).
+    {400, ReasonMalformedJson} = request(delete, Endpoint("user", []), <<"{">>).
 
 bad(Config) ->
     Port = port(Config),

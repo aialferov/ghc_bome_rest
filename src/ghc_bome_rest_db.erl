@@ -8,18 +8,18 @@
     delete/1, delete/2
 ]).
 
-put(Id = <<"user">>, Data) ->
+put(Id = <<"user">>, Data) when is_map(Data) ->
     io:format("PUT ~p => ~p~n", [Id, Data]),
     {ok, modified};
 
-put(Id, Data) ->
+put(Id, Data) when is_map(Data) ->
     io:format("PUT ~p => ~p~n", [Id, Data]),
     {ok, created}.
 
-patch(Id = <<"user">>, Data) ->
+patch(Id = <<"user">>, Data) when is_map(Data) ->
     io:format("PATCH ~p => ~p~n", [Id, Data]);
 
-patch(Id, Data) ->
+patch(Id, Data) when is_map(Data) ->
     io:format("PATCH ~p => ~p~n", [Id, Data]),
     {error, not_found}.
 
@@ -46,10 +46,10 @@ get(Id, Options) ->
 
 delete(Id) -> delete(Id, []).
 
-delete(Id = <<"user">>, Types) ->
+delete(Id = <<"user">>, Types) when is_list(Types) ->
     io:format("DELETE ~p => ~p~n", [Id, Types]);
 
-delete(Id, Types) ->
+delete(Id, Types) when is_list(Types) ->
     io:format("DELETE ~p => ~p~n", [Id, Types]),
     {error, not_found}.
 
