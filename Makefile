@@ -2,20 +2,19 @@ PROJECT = ghc_bome_rest
 
 REBAR = ./rebar3
 
-BUILD_DIR = _build
-TEST_DIR = $(shell $(REBAR) path --app $(PROJECT) --ebin)
+SUITES_DIR = $(shell $(REBAR) path --app $(PROJECT) --ebin)
+LOG_DIR = _build/logs
 
-CT_LOG_INDEX = _build/test/logs/index.html
+BUILD_DIR = _build
 
 all:
 	$(REBAR) compile
 	$(REBAR) unlock
 
-check:
-	$(REBAR) eunit
-
 at: all
-	$(REBAR) ct --dir $(TEST_DIR)
+	$(REBAR) ct \
+		--dir $(SUITES_DIR) \
+		--logdir $(LOG_DIR)
 
 clean:
 	$(REBAR) clean -a
@@ -29,11 +28,11 @@ shell:
 	$(REBAR) unlock
 
 ifeq ($(shell uname), Darwin)
-    CT_DISPLAY_CMD = open
+    AT_DISPLAY_CMD = open
 endif
 ifeq ($(shell uname), Linux)
-    CT_DISPLAY_CMD = xdg-open
+    AT_DISPLAY_CMD = xdg-open
 endif
 
 at-display:
-	$(CT_DISPLAY_CMD) $(CT_LOG_INDEX)
+	$(AT_DISPLAY_CMD) $(LOG_DIR)/index.html

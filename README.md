@@ -5,8 +5,8 @@ Erlang application implementing HTTP server with REST API for
 
 ## API
 
-The REST API provides CRUD operations with user data and exposes the following
-endpoint:
+The REST API provides CRUD operations with user metrics and exposes the
+following endpoint:
 
 ```
 /v1/users/:id
@@ -16,22 +16,22 @@ Requests to any other endpoints respond with "400 Bad Request".
 
 ### Create
 
-Create user and initialize it with provided data. Or if user exists, overwrite
-existing data.
+Create user and initialize it with provided metrics. Overwrites existing metrics
+if user exists.
 
 ```
 # Request:
 PUT /v1/users/:id
 {
-    "<type1>" : <value1>,
+    "<type1>" : <metric_value1>,
     ...,
-    "<typeN>" : <valueN>
+    "<typeN>" : <metric_valueN>
 }
 
 # Response (if new user was created):
 201 Created
 
-# Response (if existing user data was overwritten):
+# Response (if existing user metrics were overwritten):
 204 No Content
 
 # Response (if body is malformed)
@@ -41,18 +41,18 @@ PUT /v1/users/:id
 
 ### Read
 
-Get data of the specified user:
+Get metrics of the specified user:
 
 ```
 # Request
-GET /v1/users/:id[?filter=type1,...,typeN]
+GET /v1/users/:id[?filter=metric_name1,...,metric_nameN]
 
 # Response (if user exists)
 200 OK
 {
-    "<type1>" : <value1>,
+    "<metric_name1>" : <metric_value1>,
     ...,
-    "<typeN>" : <valueN>
+    "<metric_nameN>" : <metric_valueN>
 }
 
 # Response (if user not found)
@@ -65,15 +65,15 @@ GET /v1/users/:id[?filter=type1,...,typeN]
 
 ### Update
 
-Update the specified user data:
+Update the specified user metrics:
 
 ```
 # Request
 PATCH /v1/users/:id
 {
-    "<type1>" : <value1>,
+    "<metric_name1>" : <metric_value1>,
     ...,
-    "<typeN>" : <valueN>
+    "<metric_nameN>" : <metric_valueN>
 }
 
 # Response (if user exists)
@@ -95,9 +95,9 @@ Delete the specified user data:
 # Request
 DELETE /v1/users/:id
 [
-    "<type1>",
+    "<metric_name1>",
     ...,
-    "<typeN>"
+    "<metric_nameN>"
 ]
 
 # Response (if user exists)

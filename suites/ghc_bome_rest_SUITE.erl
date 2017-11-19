@@ -20,7 +20,7 @@
 -define(BadEndpoints, [
     "http://localhost:~b/v2/users/id",
     "http://localhost:~b/v1/user/id",
-    "http://localhost:~b/v1/users/id/type"
+    "http://localhost:~b/v1/users/id/metric"
 ]).
 
 -define(ContentType, "application/json").
@@ -50,51 +50,55 @@ end_per_testcase(_Case, Config) -> Config.
 
 put(Config) ->
     Endpoint = endpoint_fun(Config),
-    Body = jsx:encode(#{<<"type1">> => <<"value1">>}),
+    Body = jsx:encode(#{<<"metric_name1">> => <<"metric_value1">>}),
 
-    {201, <<"">>} = request(put, Endpoint("user1", []), Body),
-    {204, <<"">>} = request(put, Endpoint("user", []), Body),
+    {204, <<"">>} = request(put, Endpoint("user1", []), Body),
+    {201, <<"">>} = request(put, Endpoint("user2", []), Body),
 
     ReasonMalformedJson = #{<<"reason">> => <<"malformed_json">>},
-    {400, ReasonMalformedJson} = request(put, Endpoint("user", []), <<"{">>).
+    {400, ReasonMalformedJson} = request(put, Endpoint("user1", []), <<"{">>).
 
 patch(Config) ->
     Endpoint = endpoint_fun(Config),
-    Body = jsx:encode(#{<<"type1">> => <<"value1">>,
-                        <<"typeN">> => <<"valueN">>}),
+    Body = jsx:encode(#{<<"metric_name1">> => <<"metric_value1">>,
+                        <<"metric_nameN">> => <<"metric_valueN">>}),
 
-    {204, <<"">>} = request(patch, Endpoint("user", []), Body),
-    {404, #{<<"user1">> := <<"not_found">>}} =
-        request(patch, Endpoint("user1", []), Body),
+    {204, <<"">>} = request(patch, Endpoint("user1", []), Body),
+    {404, #{<<"user2">> := <<"not_found">>}} =
+        request(patch, Endpoint("user2", []), Body),
 
     ReasonMalformedJson = #{<<"reason">> => <<"malformed_json">>},
-    {400, ReasonMalformedJson} = request(patch, Endpoint("user", []), <<"{">>).
+    {400, ReasonMalformedJson} = request(patch, Endpoint("user1", []), <<"{">>).
 
 get(Config) ->
     Endpoint = endpoint_fun(Config),
 
-    {200, #{<<"type1">> := <<"value1">>, <<"typeN">> := <<"valueN">>}} =
-        request(get, Endpoint("user", [{"filter", "type1,typeN"}])),
+    {200, #{<<"metric_name1">> := <<"metric_value1">>,
+            <<"metric_nameN">> := <<"metric_valueN">>}} =
+        request(get, Endpoint("user1",
+                              [{"filter", "metric_name1,metric_nameN"}])),
 
-    {200, #{<<"typeN">> := <<"valueN">>}} =
-        request(get, Endpoint("user", [{"filter", "typeN"}])),
+    {200, #{<<"metric_nameN">> := <<"metric_valueN">>}} =
+        request(get, Endpoint("user1", [{"filter", "metric_nameN"}])),
 
-    {404, #{<<"user1">> := <<"not_found">>}} =
-        request(get, Endpoint("user1", [{"filter", "type1,typeN"}])),
+    {404, #{<<"user2">> := <<"not_found">>}} =
+        request(get, Endpoint("user2",
+                              [{"filter", "metric_name1,metric_nameN"}])),
 
     {400, #{<<"reason">> := #{<<"unknown_option">> := <<"bad_filter">>}}} =
-        request(get, Endpoint("user", [{"bad_filter", "type1,typeN"}])).
+        request(get, Endpoint("user1",
+                              [{"bad_filter", "metric_name1,metric_nameN"}])).
 
 delete(Config) ->
     Endpoint = endpoint_fun(Config),
-    Body = jsx:encode([<<"type1">>, <<"typeN">>]),
+    Body = jsx:encode([<<"metric_name1">>, <<"metric_nameN">>]),
 
-    {204, <<"">>} = request(delete, Endpoint("user", []), Body),
-    {404, #{<<"user1">> := <<"not_found">>}} =
-        request(delete, Endpoint("user1", []), Body),
+    {204, <<"">>} = request(delete, Endpoint("user1", []), Body),
+    {404, #{<<"user2">> := <<"not_found">>}} =
+        request(delete, Endpoint("user2", []), Body),
 
     ReasonMalformedJson = #{<<"reason">> => <<"malformed_json">>},
-    {400, ReasonMalformedJson} = request(delete, Endpoint("user", []), <<"{">>).
+    {400, ReasonMalformedJson} = request(delete, Endpoint("user1", []), <<"{">>).
 
 bad(Config) ->
     Port = port(Config),
@@ -104,7 +108,7 @@ bad(Config) ->
 
 endpoint_fun(Config) ->
     Port = port(Config),
-    fun(Id, Ql) -> format(?Endpoint, [Port, Id, qs(Ql)]) end.
+    fun(UserId, Ql) -> format(?Endpoint, [Port, UserId, qs(Ql)]) end.
 
 request(Method, Endpoint) -> request(Method, Endpoint, []).
 request(Method, Endpoint, Body) ->

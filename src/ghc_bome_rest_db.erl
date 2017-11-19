@@ -8,49 +8,49 @@
     delete/1, delete/2
 ]).
 
-put(Id = <<"user">>, Data) when is_map(Data) ->
-    io:format("PUT ~p => ~p~n", [Id, Data]),
+put(UserId = <<"user1">>, Metrics) when is_map(Metrics) ->
+    io:format("PUT ~p => ~p~n", [UserId, Metrics]),
     {ok, modified};
 
-put(Id, Data) when is_map(Data) ->
-    io:format("PUT ~p => ~p~n", [Id, Data]),
+put(UserId, Metrics) when is_map(Metrics) ->
+    io:format("PUT ~p => ~p~n", [UserId, Metrics]),
     {ok, created}.
 
-patch(Id = <<"user">>, Data) when is_map(Data) ->
-    io:format("PATCH ~p => ~p~n", [Id, Data]);
+patch(UserId = <<"user1">>, Metrics) when is_map(Metrics) ->
+    io:format("PATCH ~p => ~p~n", [UserId, Metrics]);
 
-patch(Id, Data) when is_map(Data) ->
-    io:format("PATCH ~p => ~p~n", [Id, Data]),
+patch(UserId, Metrics) when is_map(Metrics) ->
+    io:format("PATCH ~p => ~p~n", [UserId, Metrics]),
     {error, not_found}.
 
-get(Id) -> get(Id, []).
+get(UserId) -> get(UserId, []).
 
-get(Id = <<"user">>, Options = []) ->
-    io:format("GET ~p => ~p~n", [Id, Options]),
+get(UserId = <<"user1">>, Options = []) ->
+    io:format("GET ~p => ~p~n", [UserId, Options]),
     {ok, #{
-        <<"type1">> => <<"value1">>,
-        <<"typeN">> => <<"valueN">>
+        <<"metric_name1">> => <<"metric_value1">>,
+        <<"metric_nameN">> => <<"metric_valueN">>
     }};
 
-get(Id = <<"user">>, Options) ->
-    io:format("GET ~p => ~p~n", [Id, Options]),
-    Data = #{
-        <<"type1">> => <<"value1">>,
-        <<"typeN">> => <<"valueN">>
+get(UserId = <<"user1">>, Options) ->
+    io:format("GET ~p => ~p~n", [UserId, Options]),
+    Metrics = #{
+        <<"metric_name1">> => <<"metric_value1">>,
+        <<"metric_nameN">> => <<"metric_valueN">>
     },
-    {ok, lists:foldl(fun apply_option/2, Data, Options)};
+    {ok, lists:foldl(fun apply_option/2, Metrics, Options)};
 
-get(Id, Options) ->
-    io:format("GET ~p => ~p~n", [Id, Options]),
+get(UserId, Options) ->
+    io:format("GET ~p => ~p~n", [UserId, Options]),
     {error, not_found}.
 
-delete(Id) -> delete(Id, []).
+delete(UserId) -> delete(UserId, []).
 
-delete(Id = <<"user">>, Types) when is_list(Types) ->
-    io:format("DELETE ~p => ~p~n", [Id, Types]);
+delete(UserId = <<"user1">>, MetricNames) when is_list(MetricNames) ->
+    io:format("DELETE ~p => ~p~n", [UserId, MetricNames]);
 
-delete(Id, Types) when is_list(Types) ->
-    io:format("DELETE ~p => ~p~n", [Id, Types]),
+delete(UserId, MetricNames) when is_list(MetricNames) ->
+    io:format("DELETE ~p => ~p~n", [UserId, MetricNames]),
     {error, not_found}.
 
-apply_option({filter, Types}, Data) -> maps:with(Types, Data).
+apply_option({filter, MetricNames}, Metrics) -> maps:with(MetricNames, Metrics).

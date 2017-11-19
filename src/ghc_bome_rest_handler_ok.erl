@@ -8,11 +8,12 @@
 init(Req0 = #{method := Method, has_body := true}, State) when
     Method == <<"PUT">>; Method == <<"PATCH">>; Method == <<"DELETE">>
 ->
-    Id = cowboy_req:binding(id, Req0),
+    UserId = cowboy_req:binding(id, Req0),
     {ok, Body, Req1} = cowboy_req:read_body(Req0),
+    DbModule = State#state.db_module,
 
     Req = case decode_body(Body) of
-        {ok, Data} -> action(Method, Id, Data, Req1, State#state.db_module);
+        {ok, Metrics} -> action(Method, UserId, Metrics, Req1, DbModule);
         {error, Reason} -> ?HandlerBadRequest:reply(Reason, Req1)
     end,
     {ok, Req, State};
@@ -20,39 +21,40 @@ init(Req0 = #{method := Method, has_body := true}, State) when
 init(Req0 = #{method := Method, has_body := false}, State) when
     Method == <<"GET">>
 ->
-    Id = cowboy_req:binding(id, Req0),
+    UserId = cowboy_req:binding(id, Req0),
     Query = cowboy_req:parse_qs(Req0),
+    DbModule = State#state.db_module,
 
-    Req = case decode_query(Query) of
-        {ok, Options} -> action(Method, Id, Options, Req0, State#state.db_module);
+    Req = case query_to_options(Query) of
+        {ok, Options} -> action(Method, UserId, Options, Req0, DbModule);
         {error, Reason} -> ?HandlerBadRequest:reply(Reason, Req0)
     end,
     {ok, Req, State};
 
 init(Req, State) -> {ok, ?HandlerBadRequest:reply(Req), State}.
 
-action(<<"PUT">>, Id, Data, Req, DbModule) ->
-    case DbModule:put(Id, Data) of
+action(<<"PUT">>, UserId, Metrics, Req, DbModule) ->
+    case DbModule:put(UserId, Metrics) of
         {ok, created} -> reply_created(Req);
         {ok, modified} -> reply_modified(Req)
     end;
 
-action(<<"PATCH">>, Id, Data, Req, DbModule) ->
-    case DbModule:patch(Id, Data) of
+action(<<"PATCH">>, UserId, Metrics, Req, DbModule) ->
+    case DbModule:patch(UserId, Metrics) of
         ok -> reply_modified(Req);
-        {error, not_found} -> reply_not_found(Id, Req)
+        {error, not_found} -> reply_not_found(UserId, Req)
     end;
 
-action(<<"GET">>, Id, Options, Req, DbModule) ->
-    case DbModule:get(Id, Options) of
-        {ok, Data} -> reply_data(Data, Req);
-        {error, not_found} -> reply_not_found(Id, Req)
+action(<<"GET">>, UserId, Options, Req, DbModule) ->
+    case DbModule:get(UserId, Options) of
+        {ok, Metrics} -> reply_data(Metrics, Req);
+        {error, not_found} -> reply_not_found(UserId, Req)
     end;
 
-action(<<"DELETE">>, Id, Data, Req, DbModule) ->
-    case DbModule:delete(Id, Data) of
+action(<<"DELETE">>, UserId, MetricNames, Req, DbModule) ->
+    case DbModule:delete(UserId, MetricNames) of
         ok -> reply_modified(Req);
-        {error, not_found} -> reply_not_found(Id, Req)
+        {error, not_found} -> reply_not_found(UserId, Req)
     end.
 
 reply_created(Req) -> cowboy_req:reply(?CodeCreated, Req).
@@ -74,14 +76,14 @@ decode_body(Body) ->
         _:_ -> {error, malformed_json}
     end.
 
-decode_query(Query) ->
-    lists:foldl(fun decode_query/2, {ok, []}, Query).
+query_to_options(Query) ->
+    lists:foldl(fun query_to_options/2, {ok, []}, Query).
 
-decode_query({Name = <<"filter">>, Arg}, {ok, Query}) ->
-    {ok, [{binary_to_atom(Name, utf8),
-           binary:split(Arg, <<",">>, [global])}|Query]};
+query_to_options({Name = <<"filter">>, Arg}, {ok, Options}) ->
+    Option = {binary_to_atom(Name, utf8), binary:split(Arg, <<",">>, [global])},
+    {ok, [Option|Options]};
 
-decode_query({Name, _Arg}, {ok, _Query}) ->
+query_to_options({Name, _Arg}, {ok, _Options}) ->
     {error, #{unknown_option => Name}};
 
-decode_query({_Name, _Arg}, {error, Reason}) -> {error, Reason}.
+query_to_options({_Name, _Arg}, {error, Reason}) -> {error, Reason}.
