@@ -16,9 +16,8 @@ text(File, Format, Args) -> log(File, format(Format, Args)).
 
 request(File, Req) -> request(File, Req, "").
 request(File, Req, Body) ->
-    {{A, B, C, D}, Port} = maps:get(peer, Req),
-    log(File, format("~b.~b.~b.~b:~b --> '~s' '~s' '~s' '~s'", [
-        A, B, C, D, Port,
+    log(File, format("~s --> '~s' '~s' '~s' '~s'", [
+        peer(Req),
         maps:get(method, Req),
         maps:get(path, Req),
         maps:get(qs, Req),
@@ -27,14 +26,19 @@ request(File, Req, Body) ->
 
 response(File, Req, Code) -> response(File, Req, Code, "").
 response(File, Req, Code, Body) ->
-    {{A, B, C, D}, Port} = maps:get(peer, Req),
-    log(File, format("~b.~b.~b.~b:~b <-- '~b' '~s'",
-                     [A, B, C, D, Port, Code, Body])).
+    log(File, format("~s <-- '~b' '~s'", [peer(Req), Code, Body])).
 
 log(File, Text) ->
     Now = {_MegaSecs, _Secs, Mcs} = erlang:timestamp(),
     {{Y, Mo, D}, {H, Mi, S}} = calendar:now_to_universal_time(Now),
     Args = [Y, Mo, D, H, Mi, S, Mcs div 1000, Text],
     file:write(File, format(?Format, Args)).
+
+peer(Req) ->
+    case maps:find(peer, Req) of
+        {ok, {{A, B, C, D}, Port}} ->
+            format("~b.~b.~b.~b:~b", [A, B, C, D, Port]);
+        _Other -> "-"
+    end.
 
 format(Format, Args) -> lists:flatten(io_lib:format(Format, Args)).
