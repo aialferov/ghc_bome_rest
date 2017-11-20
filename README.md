@@ -132,6 +132,11 @@ store any data. The backend could also be configured by specifying the backend
 main module in "app" file or overriden by "sys.config" or
 "application:set_env/3,4".
 
+### Logs
+
+By default application write logs in the "ghc_bome_rest.log" file in the working
+directory.
+
 ### Tests
 
 Run API acceptance tests:
