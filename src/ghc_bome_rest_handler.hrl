@@ -1,4 +1,4 @@
--record(state, {db_module}).
+-record(state, {db_module, log_file}).
 
 -define(ContentTypeText, #{<<"content-type">> => <<"text/plain">>}).
 -define(ContentTypeJson, #{<<"content-type">> => <<"application/json">>}).
