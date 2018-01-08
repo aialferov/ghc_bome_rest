@@ -50,7 +50,7 @@ action(<<"PATCH">>, UserId, Metrics, Req, State) ->
     DbModule = State#state.db_module,
     case DbModule:patch(UserId, Metrics) of
         ok -> reply_modified(Req, State);
-    {error, not_found} -> reply_not_found(UserId, Req, State)
+        {error, not_found} -> reply_not_found(UserId, Req, State)
     end;
 
 action(<<"GET">>, UserId, Options, Req, State) ->

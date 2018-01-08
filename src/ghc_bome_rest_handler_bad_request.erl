@@ -13,11 +13,17 @@
 init(Req, State) -> {ok, reply(Req, State), State}.
 
 reply(Req, State) ->
-    Body = lists:flatten(io_lib:format(?GhcBomeApiUsage, [])),
-    ?Log:response(State#state.log_file, Req, ?CodeBadRequest, "<Usage>"),
-    cowboy_req:reply(?CodeBadRequest, ?ContentTypeText, Body, Req).
+    {ok, Body, Req1} = cowboy_req:read_body(Req),
+    ?Log:request(State#state.log_file, Req1, Body),
+
+    Response = lists:flatten(io_lib:format(?GhcBomeApiUsage, [])),
+    ?Log:response(State#state.log_file, Req1, ?CodeBadRequest, "<Usage>"),
+    cowboy_req:reply(?CodeBadRequest, ?ContentTypeText, Response, Req1).
 
 reply(Reason, Req, State) ->
-    Body = jsx:encode(#{reason => Reason}),
-    ?Log:response(State#state.log_file, Req, ?CodeBadRequest, Body),
-    cowboy_req:reply(?CodeBadRequest, ?ContentTypeJson, Body, Req).
+    {ok, Body, Req1} = cowboy_req:read_body(Req),
+    ?Log:request(State#state.log_file, Req1, Body),
+
+    Response = jsx:encode(#{reason => Reason}),
+    ?Log:response(State#state.log_file, Req1, ?CodeBadRequest, Body),
+    cowboy_req:reply(?CodeBadRequest, ?ContentTypeJson, Response, Req1).
