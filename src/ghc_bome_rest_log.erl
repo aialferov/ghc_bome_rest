@@ -32,7 +32,9 @@ log(File, Text) ->
     Now = {_MegaSecs, _Secs, Mcs} = erlang:timestamp(),
     {{Y, Mo, D}, {H, Mi, S}} = calendar:now_to_universal_time(Now),
     Args = [Y, Mo, D, H, Mi, S, Mcs div 1000, Text],
-    file:write(File, format(?Format, Args)).
+    Log = format(?Format, Args),
+    io:format(Log),
+    file:write(File, Log).
 
 peer(Req) ->
     case maps:find(peer, Req) of
